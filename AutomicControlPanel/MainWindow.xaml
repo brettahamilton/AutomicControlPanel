@@ -84,6 +84,6 @@
                 Name="ProgBar" Visibility="Hidden">
             <local:CircularProgressBar x:Name="CircProgBar" />
         </Viewbox>
-        <Button Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" Name="ShowLoader" Content="ShowLoader" Click="ShowLoader_Click"/>
+        <!--<Button Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" Name="ShowLoader" Content="ShowLoader" Click="ShowLoader_Click"/>-->
     </Grid>
 </Window>

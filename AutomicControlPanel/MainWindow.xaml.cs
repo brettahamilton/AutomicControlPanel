@@ -126,18 +126,37 @@ namespace AutomicControlPanel
             chk.Width = 250;
             chk.Margin = new Thickness(20, 0, 0, 0);
             chk.HorizontalAlignment = HorizontalAlignment.Left;
+
+            Viewbox view = new Viewbox();
+            view.Name = "view" + serviceInfo[2];
+            view.Height = 20;
+            view.Width = 20;
+            view.HorizontalAlignment = HorizontalAlignment.Right;
+            view.Margin = new Thickness(0, 0, 40, 0);
+            view.Visibility = Visibility.Hidden;
+
+            CircularProgressBar circ = new CircularProgressBar();
+            circ.Name = "prog" + serviceInfo[2];
+            view.Child = circ;
+
             if (i == 0)
             {
                 Grid.SetRow(chk, rowCount);
+                Grid.SetRow(view, rowCount);
                 rowCount++;
-            } else
+            }
+            else
             {
                 Grid.SetRow(chk, rowCountR);
+                Grid.SetRow(view, rowCountR);
                 rowCountR++;
             }
             Grid.SetColumn(chk, i);
+            Grid.SetColumn(view, i);
 
             MyGrid.Children.Add(chk);
+
+            MyGrid.Children.Add(view);
 
             checkStatus(chk.Name);
             chk.Checked += CheckBox_Checked;
@@ -150,6 +169,7 @@ namespace AutomicControlPanel
         {
 
             CheckBox che = FindChild<CheckBox>(MyGrid, checkName);
+            Viewbox view = FindChild<Viewbox>(MyGrid, "view" + che.Name);
 
             ServiceController sc = new ServiceController(che.Tag.ToString());
 
@@ -165,12 +185,14 @@ namespace AutomicControlPanel
                     {
                         che.IsEnabled = false;
                         che.IsChecked = true;
+                        view.Visibility = Visibility.Visible;
                         break;
                     }
                 case ServiceControllerStatus.StopPending:
                     {
                         che.IsEnabled = false;
                         che.IsChecked = false;
+                        view.Visibility = Visibility.Hidden;
                         break;
                     }
                 default:
@@ -189,9 +211,7 @@ namespace AutomicControlPanel
             if (sc.Status != ServiceControllerStatus.Running && sc.Status != ServiceControllerStatus.StartPending)
             {
                 sc.Start();
-                chk.IsEnabled = false;
                 sc.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 1, 0));
-                chk.IsEnabled = true;
             }
 
         }
@@ -203,9 +223,7 @@ namespace AutomicControlPanel
             if (sc.Status != ServiceControllerStatus.Stopped && sc.Status != ServiceControllerStatus.StopPending)
             {
                 sc.Stop();
-                chk.IsEnabled = false;
                 sc.WaitForStatus(ServiceControllerStatus.Stopped, new TimeSpan(0, 1, 0));
-                chk.IsEnabled = true;
             }
  
         }
