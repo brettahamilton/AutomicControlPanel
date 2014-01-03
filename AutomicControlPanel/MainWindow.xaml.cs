@@ -165,14 +165,12 @@ namespace AutomicControlPanel
                     {
                         che.IsEnabled = false;
                         che.IsChecked = true;
-                        checkStatus(che.Name);
                         break;
                     }
                 case ServiceControllerStatus.StopPending:
                     {
                         che.IsEnabled = false;
                         che.IsChecked = false;
-                        checkStatus(che.Name);
                         break;
                     }
                 default:
@@ -275,6 +273,20 @@ namespace AutomicControlPanel
                 string[] serviceInfo = myServices.getAraService(i).Split('|');
                 checkStatus(serviceInfo[2]);
             }
+        }
+
+        private void ShowLoader_Click(object sender, RoutedEventArgs e)
+        {
+            //Viewbox Progbar = FindChild<Viewbox>(MyGrid, "ProgBar");
+            if (ProgBar.Visibility == System.Windows.Visibility.Visible)
+            {
+                ProgBar.Visibility = System.Windows.Visibility.Hidden;
+            }
+            else
+            {
+                ProgBar.Visibility = System.Windows.Visibility.Visible;
+            }
+                
         }
     }
 }
