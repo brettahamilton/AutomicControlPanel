@@ -179,6 +179,7 @@ namespace AutomicControlPanel
                     {
                         che.IsEnabled = true;
                         che.IsChecked = true;
+                        view.Visibility = Visibility.Hidden;
                         break;
                     }
                 case ServiceControllerStatus.StartPending:
@@ -192,13 +193,14 @@ namespace AutomicControlPanel
                     {
                         che.IsEnabled = false;
                         che.IsChecked = false;
-                        view.Visibility = Visibility.Hidden;
+                        view.Visibility = Visibility.Visible;
                         break;
                     }
                 default:
                     {
                         che.IsEnabled = true;
                         che.IsChecked = false;
+                        view.Visibility = Visibility.Hidden;
                         break;
                     }
             }
