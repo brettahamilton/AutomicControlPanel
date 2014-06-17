@@ -29,6 +29,8 @@ namespace AutomicControlPanel
 
         int rowCount = 2;
         int rowCountR = 2;
+        int rowCountE = 2;
+        int rowCountL = 2;
 
         public MainWindow()
         {
@@ -42,7 +44,7 @@ namespace AutomicControlPanel
         private void readConfig()
         {
 
-            myServices = new DemoServices(ConfigurationManager.AppSettings["numBaseServices"], ConfigurationManager.AppSettings["numONEServices"],ConfigurationManager.AppSettings["numARAServices"]);
+            myServices = new DemoServices(ConfigurationManager.AppSettings["numBaseServices"], ConfigurationManager.AppSettings["numONEServices"], ConfigurationManager.AppSettings["numARAServices"], ConfigurationManager.AppSettings["numWSPServices"], ConfigurationManager.AppSettings["numWLSServices"]);
 
             for (int i = 0; i <= myServices.count_BaseServices - 1; i++)
             {
@@ -52,9 +54,17 @@ namespace AutomicControlPanel
             {
                 myServices.addOneService(ConfigurationManager.AppSettings["one" + i]);
             }
-            for (int i = 0; i <= myServices.count_OneServices - 1; i++)
+            for (int i = 0; i <= myServices.count_AraServices - 1; i++)
             {
                 myServices.addAraService(ConfigurationManager.AppSettings["ara" + i]);
+            }
+            for (int i = 0; i <= myServices.count_WspServices - 1; i++)
+            {
+                myServices.addWspService(ConfigurationManager.AppSettings["wsp" + i]);
+            }
+            for (int i = 0; i <= myServices.count_WlsServices - 1; i++)
+            {
+                myServices.addWlsService(ConfigurationManager.AppSettings["wls" + i]);
             }
 
             RowDefinition gridRow1 = new RowDefinition();
@@ -76,12 +86,12 @@ namespace AutomicControlPanel
             }
 
             RowDefinition gridRow2 = new RowDefinition();
-            gridRow2.Height = new GridLength(50);
+            gridRow2.Height = new GridLength(30);
             MyGrid.RowDefinitions.Add(gridRow2);
 
             Label lbl2 = new Label();
             lbl2.Content = "ONE Automation";
-            lbl2.Margin = new Thickness(10, 15, 0, 0);
+            lbl2.Margin = new Thickness(10, 0, 0, 0);
             lbl2.FontSize = 18;
             Grid.SetRow(lbl2, rowCount);
             Grid.SetColumn(lbl2, 0);
@@ -94,7 +104,7 @@ namespace AutomicControlPanel
             }
 
             Label lbl3 = new Label();
-            lbl3.Content = "ARA";
+            lbl3.Content = "ARA Base";
             lbl3.Margin = new Thickness(10, 0, 0, 0);
             lbl3.FontSize = 18;
             Grid.SetRow(lbl3, rowCountR);
@@ -106,6 +116,43 @@ namespace AutomicControlPanel
             {
                 addServiceSection(myServices.getAraService(i), true, 1);
             }
+
+            Label lbl4 = new Label();
+            lbl4.Content = "ARA Websphere";
+            lbl4.Margin = new Thickness(10, 0, 0, 0);
+            lbl4.FontSize = 18;
+            Grid.SetRow(lbl4, rowCountR);
+            Grid.SetColumn(lbl4, 1);
+            MyGrid.Children.Add(lbl4);
+            rowCountR++;
+
+            for (int i = 0; i <= myServices.count_WspServices - 1; i++)
+            {
+                addServiceSection(myServices.getWspService(i), true, 1);
+            }
+
+            Label lbl5 = new Label();
+            lbl5.Content = "ARA Weblogic";
+            lbl5.Margin = new Thickness(10, 0, 0, 0);
+            lbl5.FontSize = 18;
+            Grid.SetRow(lbl5, rowCountE);
+            Grid.SetColumn(lbl5, 2);
+            MyGrid.Children.Add(lbl5);
+            rowCountE++;
+
+            for (int i = 0; i <= myServices.count_WlsServices - 1; i++)
+            {
+                addServiceSection(myServices.getWlsService(i), true, 2);
+            }
+
+            Label lbl6 = new Label();
+            lbl6.Content = "Links";
+            lbl6.Margin = new Thickness(10, 0, 0, 0);
+            lbl6.FontSize = 18;
+            Grid.SetRow(lbl6, rowCountL);
+            Grid.SetColumn(lbl6, 3);
+            MyGrid.Children.Add(lbl6);
+            rowCountL++;
         }
 
         private void addServiceSection(string ServiceString, bool left, int i)
@@ -145,11 +192,17 @@ namespace AutomicControlPanel
                 Grid.SetRow(view, rowCount);
                 rowCount++;
             }
-            else
+            else if (i == 1)
             {
                 Grid.SetRow(chk, rowCountR);
                 Grid.SetRow(view, rowCountR);
                 rowCountR++;
+            }
+            else
+            {
+                Grid.SetRow(chk, rowCountE);
+                Grid.SetRow(view, rowCountE);
+                rowCountE++;
             }
             Grid.SetColumn(chk, i);
             Grid.SetColumn(view, i);
