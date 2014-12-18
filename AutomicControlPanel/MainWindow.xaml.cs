@@ -16,6 +16,8 @@ using System.Windows.Shapes;
 using System.ServiceProcess;
 using System.Configuration;
 using System.Diagnostics;
+using System.Threading;
+using System.ComponentModel;
 
 namespace AutomicControlPanel
 {
@@ -24,6 +26,8 @@ namespace AutomicControlPanel
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        #region Building Form
 
         DemoServices myServices;
 
@@ -217,6 +221,8 @@ namespace AutomicControlPanel
 
         }
 
+        #endregion
+
 
         private void checkStatus(string checkName)
         {
@@ -262,11 +268,21 @@ namespace AutomicControlPanel
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
             CheckBox chk = sender as CheckBox;
+            String CheckName = chk.Name;
             ServiceController sc = new ServiceController(chk.Tag.ToString());
             if (sc.Status != ServiceControllerStatus.Running && sc.Status != ServiceControllerStatus.StartPending)
             {
                 sc.Start();
-                sc.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 1, 0));
+                checkStatus(CheckName);
+
+                BackgroundWorker bgWorker;
+                bgWorker = new BackgroundWorker();
+                bgWorker.DoWork += new DoWorkEventHandler(bgWorker_DoWork);
+                bgWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bgWorker_RunWorkerCompleted);
+
+                string[] workerPayload = new string[3] { CheckName, chk.Tag.ToString(), "started" };
+
+                bgWorker.RunWorkerAsync(workerPayload);
             }
 
         }
@@ -274,13 +290,51 @@ namespace AutomicControlPanel
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
             CheckBox chk = sender as CheckBox;
+            String CheckName = chk.Name;
             ServiceController sc = new ServiceController(chk.Tag.ToString());
             if (sc.Status != ServiceControllerStatus.Stopped && sc.Status != ServiceControllerStatus.StopPending)
             {
                 sc.Stop();
-                sc.WaitForStatus(ServiceControllerStatus.Stopped, new TimeSpan(0, 1, 0));
+                checkStatus(CheckName);
+
+                BackgroundWorker bgWorker;
+                bgWorker = new BackgroundWorker();
+                bgWorker.DoWork += new DoWorkEventHandler(bgWorker_DoWork);
+                bgWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bgWorker_RunWorkerCompleted);
+
+                string[] workerPayload = new string[3] {CheckName,chk.Tag.ToString(),"stopped"};
+
+                bgWorker.RunWorkerAsync(workerPayload);
+
+                //sc.WaitForStatus(ServiceControllerStatus.Stopped, new TimeSpan(0, 1, 0));
+                //checkStatus(CheckName);
             }
  
+        }
+
+        private void bgWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            string[] args = (string[])e.Argument;
+            ServiceController sc = new ServiceController(args[1]);
+
+            ServiceControllerStatus status;
+
+            if (args[2] == "stopped")
+            {
+                status = ServiceControllerStatus.Stopped;
+            }
+            else
+            {
+                status = ServiceControllerStatus.Running;
+            }
+
+            sc.WaitForStatus(status, new TimeSpan(0, 1, 0));
+            e.Result = args[0];
+        }
+
+        private void bgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            checkStatus((String)e.Result);
         }
 
         public static T FindChild<T>(DependencyObject parent, string childName)
@@ -344,6 +398,18 @@ namespace AutomicControlPanel
             for (int i = 0; i <= myServices.count_AraServices - 1; i++)
             {
                 string[] serviceInfo = myServices.getAraService(i).Split('|');
+                checkStatus(serviceInfo[2]);
+            }
+
+            for (int i = 0; i <= myServices.count_WspServices - 1; i++)
+            {
+                string[] serviceInfo = myServices.getWspService(i).Split('|');
+                checkStatus(serviceInfo[2]);
+            }
+
+            for (int i = 0; i <= myServices.count_WlsServices - 1; i++)
+            {
+                string[] serviceInfo = myServices.getWlsService(i).Split('|');
                 checkStatus(serviceInfo[2]);
             }
         }
